@@ -1,0 +1,783 @@
+---
+title: "Introduction to *p*-values"
+author: "Fabio Setti"
+institute: "PSYC 2000 - Statistics"
+
+engine: shinylive
+
+bibliography: Additional files/references.bib
+csl: Additional files/apa.csl
+
+title-slide-attributes:
+  data-transition: "zoom"
+  data-visibility: "uncounted"
+
+format:
+  revealjs:
+    footer: "Introduction to *p*-values"
+    width: 1280
+    height: 720
+    chalkboard: true
+    slide-number: c/t 
+    theme: Fabio_theme/Fabio_theme.scss
+    navigation-mode: linear
+    controls: false
+    embed-resources: false
+    auto-stretch: false
+    resource-path: 
+      - shinylive-sw.js
+    header-includes:
+      - <script src="Fabio_theme/Fabio_theme.js"></script>
+      - <script src="shinylive-sw.js"></script>
+
+filters:
+  - shinylive
+editor: source
+---
+
+
+## Recap: Central tendency, dispersion, Skewness{visibility="hidden"}
+
+
+```{r}
+library(tidyverse)
+theme_set(theme_classic(base_size = 16, 
+                        base_family = 'serif'))
+```
+
+
+:::: {.columns}
+::: {.column width="75%"}
+
+<iframe width="90%" height="600px" src="https://fabiosetti.shinyapps.io/Skew_Normal_distribution/"> </iframe>
+
+:::
+::: {.column width="25%"}
+
+**Central tendency**: Measures used to describe the center of a distribution (<u>mean</u>, median, mode)
+
+**Dispersion**: Measures used to describe variability of a distribution (<u>standard deviation</u>, variance, range)
+
+<center>
+
+Different measures of central tendency may be more or less appropriate depending on **skweness**
+
+</center>
+
+
+:::
+::::
+
+
+## Recap: Scale and Standardization
+
+:::: {.columns}
+::: {.column width="70%"}
+
+::: {.panel-tabset}
+
+### Feet
+
+```{r}
+means <- c(0, 178.4, round(178.4/30.48, 2))
+sds <- c(1, 7.6, round(7.6/30.48, 2))
+units <- c("Standardized units (Z-score)", "Centimeters (cm)", "Feet (ft)")  
+
+mean <- means[3]
+sd <- sds[3]
+unit <- units[3]
+
+ggplot()+
+  geom_function(fun = dnorm, 
+                args = list(mean = mean,
+                            sd = sd), 
+                col = "#7a0b80") +
+
+  # -2 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean-  2*sd, mean = mean, sd = sd), 
+                   x = mean - 2*sd, 
+                   xend = mean - 2*sd),
+               lty = 2) +  
+  # -1 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean- sd, mean = mean, sd = sd), 
+                   x = mean - sd, 
+                   xend = mean - sd),
+               lty = 2) +
+  # Mean
+  geom_segment(aes(y = 0, 
+               yend = dnorm(mean, mean = mean, sd = sd), 
+               x = mean, 
+               xend = mean),
+               lty = 2) +
+  # +1 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean + sd, mean = mean, sd = sd), 
+                   x = mean  + sd, 
+                   xend = mean + sd),
+               lty = 2) +  
+  # +2 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean +  2*sd, mean = mean, sd = sd), 
+                   x = mean + 2*sd, 
+                   xend = mean + 2*sd),
+               lty = 2) +
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0, dnorm(mean, mean = mean, sd = sd)  +.2)) +
+  scale_x_continuous(breaks=c(mean - sd*2, 
+                              mean - sd, 
+                              mean, 
+                              mean + sd, 
+                              mean + sd*2),
+                     limits = c(mean - sd*3, 
+                                mean + sd*3)) +
+  annotate("text", x = mean+sd*2.3, y = dnorm(mean-sd*0, mean = mean, sd = sd) + .1, label = paste0("Mean = ", mean,"ft", "\n",
+                                                                                                    "SD = ", sd, "ft"), size = 5) +
+  annotate("text", x = mean-sd*2.3, y = .05, label = "2.3%", size = 5) +
+  annotate("text", x = mean-sd*1.5, y = .25, label = "13.6%", size = 5) +
+  annotate("text", x = mean-sd*0.5, y = .5, label = "34.1%",  size = 5) +
+  annotate("text", x = mean+sd*0.5, y = .5, label = "34.1%", size = 5) +
+  annotate("text", x = mean+sd*2.3, y = .05, label = "2.3%", size = 5) +
+  annotate("text", x = mean+sd*1.5, y = .25, label = "13.6%", size = 5) +
+  annotate("text", x = mean-sd*2 - .05, y = dnorm(mean-sd*2, mean = mean, sd = sd) + .1, label = "-2 SD", size = 5) +
+  annotate("text", x = mean-sd*1 - .05, y = dnorm(mean-sd*1, mean = mean, sd = sd) + .1, label = "-1 SD", size = 5) +
+  annotate("text", x = mean,      y = dnorm(mean-sd*0, mean = mean, sd = sd) + .1, label = "Mean",  size = 5) +
+  annotate("text", x = mean+sd*2 +.05, y = dnorm(mean+sd*2, mean = mean, sd = sd) + .1, label = "+2 SD", size = 5) +
+  annotate("text", x = mean+sd*1 +.05, y = dnorm(mean+sd*1, mean = mean, sd = sd) + .1, label = "+1 SD", size = 5) +
+  xlab(paste("Distribution of Male Height in", unit))+ 
+  theme( axis.text.y=element_blank(),
+         axis.ticks.y=element_blank(),
+         axis.line.y = element_blank(),
+         axis.title.y = element_blank())
+
+```
+
+
+### Centimeters
+
+
+```{r}
+
+mean <- means[2]
+sd <- sds[2]
+unit <- units[2]
+
+ggplot()+
+  geom_function(fun = dnorm, 
+                args = list(mean = mean,
+                            sd = sd), 
+                col = "#7a0b80") +
+
+  # -2 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean-  2*sd, mean = mean, sd = sd), 
+                   x = mean - 2*sd, 
+                   xend = mean - 2*sd),
+               lty = 2) +  
+  # -1 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean- sd, mean = mean, sd = sd), 
+                   x = mean - sd, 
+                   xend = mean - sd),
+               lty = 2) +
+  # Mean
+  geom_segment(aes(y = 0, 
+               yend = dnorm(mean, mean = mean, sd = sd), 
+               x = mean, 
+               xend = mean),
+               lty = 2) +
+  # +1 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean + sd, mean = mean, sd = sd), 
+                   x = mean  + sd, 
+                   xend = mean + sd),
+               lty = 2) +  
+  # +2 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean +  2*sd, mean = mean, sd = sd), 
+                   x = mean + 2*sd, 
+                   xend = mean + 2*sd),
+               lty = 2) +
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0, dnorm(mean, mean = mean, sd = sd) + dnorm(mean, mean = mean, sd = sd)*.15)) +
+  scale_x_continuous(breaks=c(mean - sd*2, 
+                              mean - sd, 
+                              mean, 
+                              mean + sd, 
+                              mean + sd*2),
+                     limits = c(mean - sd*3, 
+                                mean + sd*3)) +
+    annotate("text", x = mean+sd*2.3, y = dnorm(mean-sd*0, mean = mean, sd = sd) + dnorm(mean-sd*0, mean = mean, sd = sd)*.05, label = paste0("Mean = ", mean,"cm", "\n",
+                                                                                                      "SD = ", sd, "cm"), size = 5) +
+  annotate("text", x = 157, y = dnorm(mean-sd*2, mean = mean, sd = sd)*4, label = "(clearly better measurment \n system than feet)", size = 3) +
+  annotate("text", x = mean-sd*2.2, y = dnorm(mean-sd*2, mean = mean, sd = sd)*.3, label = "2.3%", size = 4) +
+  annotate("text", x = mean-sd*1.5, y = dnorm(mean-sd*1, mean = mean, sd = sd)*.25, label = "13.6%", size = 5) +
+  annotate("text", x = mean-sd*0.5, y = dnorm(mean-sd*0, mean = mean, sd = sd)*.5, label = "34.1%",  size = 5) +
+  annotate("text", x = mean+sd*0.5, y = dnorm(mean-sd*0, mean = mean, sd = sd)*.5, label = "34.1%", size = 5) +
+  annotate("text", x = mean+sd*2.2, y = dnorm(mean+sd*2, mean = mean, sd = sd)*.3, label = "2.3%", size = 4) +
+  annotate("text", x = mean+sd*1.5, y = dnorm(mean+sd*1, mean = mean, sd = sd)*.25, label = "13.6%", size = 5) +
+  annotate("text", x = mean-sd*2 - 1, y = dnorm(mean-sd*2, mean = mean, sd = sd) + dnorm(mean-sd*2, mean = mean, sd = sd)*.5, label = "-2 SD", size = 5) +
+  annotate("text", x = mean-sd*1 - 1, y = dnorm(mean-sd*1, mean = mean, sd = sd) + dnorm(mean-sd*1, mean = mean, sd = sd)*.2, label = "-1 SD", size = 5) +
+  annotate("text", x = mean,            y = dnorm(mean-sd*0, mean = mean, sd = sd) + dnorm(mean-sd*0, mean = mean, sd = sd)*.05, label = "Mean",  size = 5) +
+  annotate("text", x = mean+sd*2 + 1,  y = dnorm(mean+sd*2, mean = mean, sd = sd) + dnorm(mean+sd*2, mean = mean, sd = sd)*.5, label = "+2 SD", size = 5) +
+  annotate("text", x = mean+sd*1 + 1,  y = dnorm(mean+sd*1, mean = mean, sd = sd) + dnorm(mean+sd*1, mean = mean, sd = sd)*.2, label = "+1 SD", size = 5) +
+  xlab(paste("Distribution of Male Height in", unit))+ 
+  theme( axis.text.y=element_blank(),
+         axis.ticks.y=element_blank(),
+         axis.line.y = element_blank(),
+         axis.title.y = element_blank())
+
+```
+
+
+### Z-scores
+
+
+```{r}
+mean <- means[1]
+sd <- sds[1]
+unit <- units[1]
+
+ggplot()+
+  geom_function(fun = dnorm, 
+                args = list(mean = mean,
+                            sd = sd), 
+                col = "#7a0b80") +
+
+  # -2 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean-  2*sd, mean = mean, sd = sd), 
+                   x = mean - 2*sd, 
+                   xend = mean - 2*sd),
+               lty = 2) +  
+  # -1 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean- sd, mean = mean, sd = sd), 
+                   x = mean - sd, 
+                   xend = mean - sd),
+               lty = 2) +
+  # Mean
+  geom_segment(aes(y = 0, 
+               yend = dnorm(mean, mean = mean, sd = sd), 
+               x = mean, 
+               xend = mean),
+               lty = 2) +
+  # +1 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean + sd, mean = mean, sd = sd), 
+                   x = mean  + sd, 
+                   xend = mean + sd),
+               lty = 2) +  
+  # +2 SD
+  geom_segment(aes(y = 0, 
+                   yend = dnorm(mean +  2*sd, mean = mean, sd = sd), 
+                   x = mean + 2*sd, 
+                   xend = mean + 2*sd),
+               lty = 2) +
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0, dnorm(mean, mean = mean, sd = sd) + dnorm(mean, mean = mean, sd = sd)*.15)) +
+  scale_x_continuous(breaks=c(mean - sd*2, 
+                              mean - sd, 
+                              mean, 
+                              mean + sd, 
+                              mean + sd*2),
+                     limits = c(mean - sd*3, 
+                                mean + sd*3)) +
+  annotate("text", x = mean-sd*2.2, y = dnorm(mean-sd*2, mean = mean, sd = sd)*.3, label = "2.3%", size = 4) +
+  annotate("text", x = mean-sd*1.5, y = dnorm(mean-sd*1, mean = mean, sd = sd)*.25, label = "13.6%", size = 5) +
+  annotate("text", x = mean-sd*0.5, y = dnorm(mean-sd*0, mean = mean, sd = sd)*.5, label = "34.1%",  size = 5) +
+  annotate("text", x = mean+sd*0.5, y = dnorm(mean-sd*0, mean = mean, sd = sd)*.5, label = "34.1%", size = 5) +
+  annotate("text", x = mean+sd*2.2, y = dnorm(mean+sd*2, mean = mean, sd = sd)*.3, label = "2.3%", size = 4) +
+  annotate("text", x = mean+sd*1.5, y = dnorm(mean+sd*1, mean = mean, sd = sd)*.25, label = "13.6%", size = 5) +
+      annotate("text", x = mean+sd*2.3, y = dnorm(mean-sd*0, mean = mean, sd = sd) + dnorm(mean-sd*0, mean = mean, sd = sd)*.05, label = paste0("Mean = ", mean, "\n",
+                                                                                                      "SD = ", sd), size = 5) +
+  annotate("text", x = mean-sd*2 - .2, y = dnorm(mean-sd*2, mean = mean, sd = sd) + dnorm(mean-sd*2, mean = mean, sd = sd)*.5, label = "-2 SD", size = 5) +
+  annotate("text", x = mean-sd*1 - .2, y = dnorm(mean-sd*1, mean = mean, sd = sd) + dnorm(mean-sd*1, mean = mean, sd = sd)*.2, label = "-1 SD", size = 5) +
+  annotate("text", x = mean,            y = dnorm(mean-sd*0, mean = mean, sd = sd) + dnorm(mean-sd*0, mean = mean, sd = sd)*.05, label = "Mean",  size = 5) +
+  annotate("text", x = mean+sd*2 + .2,  y = dnorm(mean+sd*2, mean = mean, sd = sd) + dnorm(mean+sd*2, mean = mean, sd = sd)*.5, label = "+2 SD", size = 5) +
+  annotate("text", x = mean+sd*1 + .2,  y = dnorm(mean+sd*1, mean = mean, sd = sd) + dnorm(mean+sd*1, mean = mean, sd = sd)*.2, label = "+1 SD", size = 5) +
+  xlab(paste("Distribution of Male Height in", unit))+ 
+  theme( axis.text.y=element_blank(),
+         axis.ticks.y=element_blank(),
+         axis.line.y = element_blank(),
+         axis.title.y = element_blank())
+
+
+```
+
+:::
+
+<div style="font-size: 16px"> Source: [https://ourworldindata.org/human-height](https://ourworldindata.org/human-height){target="_blank"} </div>
+
+:::
+
+::: {.column width="30%"}
+
+Last time we talked about scale of variables and standardization (Z-scores)
+
+</br>
+
+::: {.fragment fragment-index=1}
+For most purposes in statistics, the scale of variables is irrelevant. Feet, centimeter, Z-scores, same story 🤷
+:::
+
+</br>
+
+
+::: {.fragment fragment-index=2}
+:::{.callout-note}
+### Why Do we Use Z-scores?
+
+Why do statistics people like Z-scores so much? They are easy to understand and convenient, that's all.
+:::
+:::
+
+:::
+::::
+
+
+
+
+## "Population" in Statistics
+
+:::: {.columns}
+::: {.column width="60%"}
+
+
+
+The example of male height on the last slide is one of the few instances where we can get close to something called a statistical *population*.
+
+::: {.fragment fragment-index=1}
+
+**Population**: the <u>entire</u> group of individuals, objects, or items of interest for a statistical study.
+:::
+
+</br>
+</br>
+</br>
+
+
+::: {.fragment fragment-index=2}
+
+In any case relevant to Psychology, we cannot measure every person in the population (e.g., every person in the US, every person with schizophrenia,...), so we resort to **sampling** from the population. 
+:::
+
+
+::: {.fragment fragment-index=3}
+We will call the process of taking a single sample from the population an **experiment**.
+:::
+
+:::
+
+::: {.column width= "40%"}
+<center> ![](Additional files/images/Earth.png){width=50%} </center>
+
+
+
+::: {.fragment fragment-index=2}
+<center> ![](Additional files/images/sample_populationpng.png) </center>
+:::
+:::
+::::
+
+
+## Sampling From The Population: Mean
+
+Assuming that we take a *representative sample* (big assumption!) of the population, some smart people have figured out that we can make inferences about the population (the goal!). However, this takes some set up:
+
+:::: {.columns}
+::: {.column width="50%"}
+
+
+::: {.fragment fragment-index=1}
+Let's say the US population has average depression of $\mu = 10$ and $\sigma = 3$ (some made up numbers)
+
+```{r}
+#| eval: true
+#| echo: false
+#| code-line-numbers: false
+
+
+  
+  ggplot()+
+  geom_function(fun = dnorm, 
+                args = list(mean = 10,
+                            sd = 3), 
+                col = "#7a0b80") +
+  theme( axis.text.y=element_blank(),
+         axis.ticks.y=element_blank(),
+         axis.line.y = element_blank(),
+         axis.title.y = element_blank()) +
+  scale_y_continuous(expand = c(0,0))+
+  geom_segment(aes(x = 10, xend = 10, y = 0 , yend = dnorm(10, mean = 10, sd = 3)),
+               lty = 2)+
+  xlab("Depression Distribution US Population")+
+  xlim(c(1, 19))
+
+
+
+```
+
+:::
+
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=2}
+
+Now I randomly sample 100 US citizens, measure their depression, and look at the **mean**
+
+
+<input id="n_input" type="number" value="100" min="1" style="margin-bottom: 0.5em;" />
+
+<button onclick="sampleNormal()">Sample Now</button>
+
+<div id="output" style="margin-top: 1em; font-size: 1.2em;"></div>
+
+<script>
+function sampleNormal() {
+  const n = parseInt(document.getElementById("n_input").value);
+  if (isNaN(n) || n <= 0) {
+    document.getElementById("output").textContent = "Please enter a valid positive number.";
+    return;
+  }
+
+  const samples = [];
+for (let i = 0; i < n; i++) {
+  // Generate standard normal value
+  let u1 = Math.random();
+  let u2 = Math.random();
+  let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+
+  // Set mean and SD here:
+  let x = 10 + 3 * z0; // mean = 10, sd = 2
+
+  samples.push(x);
+}
+  const mean = samples.reduce((a, b) => a + b, 0) / n;
+  document.getElementById("output").textContent = `Mean Depression of Sample: ${mean.toFixed(2)}`;
+}
+</script>
+
+You should notice the the larger the sample size, the more consistently we get the population mean!
+
+:::
+
+:::
+
+::::
+
+::: {.fragment fragment-index=3}
+**Takeaway:** Sample size greatly affects how close we expect the sample mean to be to the population mean
+:::
+
+
+## The Standard Error
+
+A fundamental concept in statistics is the **standard error (*SE*)**. In general, the *SE* reflects how *precise* our sample estimates of population statics are. 
+
+
+
+:::: {.columns}
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=1}
+If we have a sample of $N = 100$ from the US population, with mean depression $\bar{X} = 9.7$, and standard deviation $S = 3.3$, then
+
+$$
+SE_{\bar{X}} = \frac{S}{\sqrt{N}} = \frac{3.3}{\sqrt{100}} = .33
+$$
+:::
+
+
+::: {.fragment fragment-index=2}
+:::{.callout-note}
+## statistics "reward" you for larger sample sizes
+
+Note that as sample size, $N$, becomes larger, *SE* becomes smaller, reflecting increased *precision* in the estimate of the population mean.
+:::
+:::
+
+
+:::
+::: {.column width="50%"}
+
+
+::: {.fragment fragment-index=3}
+ok, cool 🤔 but where does the *SE* formula come from?
+:::
+
+</br>
+
+<center>
+
+::: {.fragment fragment-index=4}
+Turns out the *SE* is the standard deviation of the distribution of all the sample means over an *infinite number of experiment with the exact same sample size*  
+:::
+
+</center>
+
+</br>
+
+<center>
+::: {.fragment fragment-index=5}
+This distribution is called the **sampling dsitribution**
+:::
+</center>
+:::
+::::
+
+::: {.fragment fragment-index=6}
+If this makes no sense, don't worry, you are not alone! Let's look at the interactive example on the next slide 
+:::
+
+
+## Sampling Distribution: Try it Yourself
+
+:::: {.columns}
+::: {.column width="80%"}
+
+<iframe width="1700px" height="600px" src="https://quinix45.github.io/shinylive_apps/Sampling_dist/"> </iframe>
+
+:::
+::: {.column width="20%"}
+
+<div style="font-size: 24px"> As you increase the number of experiments, you will see that that the SD of the sampling distribution (plot on the right) will equal exactly </div>
+
+
+
+$$SE = \frac{\sigma}{\sqrt{N}}$$
+
+<div style="font-size: 22px"> **Note:** As on the previous slide, in practice we use $S$ and not $\sigma$, which we do not need! As we have learned, the sample statistic $S$ will be very close to $\sigma$ if we sample correctly. </div>
+
+:::
+::::
+
+
+
+## *P*-values
+
+Now we can put together two things that we know:
+
+<ol style="font-size: 24px">  
+
+::: {.fragment fragment-index=1}
+<li> We know that the sampling distribution of the mean (and many other things actually) will be a <u>normal distribution</u> with mean = $\bar{X}$, the sample mean, and standard deviation = $\frac{S}{\sqrt{N}}$, the standard error </li>
+:::
+
+::: {.fragment fragment-index=2}
+<li> Given a normal distribution, we know the probability of any value showing up (e.g., a value that is 2 SD above the mean is very unlikely) </li>
+:::
+</ol>
+
+
+
+
+:::: {.columns}
+::: {.column width="80%"}
+
+</br>
+
+<center>
+::: {.fragment fragment-index=3}
+We can now check the probability of seeing our specific sample statistic, *or something more extreme*, from a sampling distribution! This probibilty is called a ***p*-value** 
+:::
+
+</center>
+
+</br>
+
+
+::: {.fragment fragment-index=4}
+**Historical note:** The popularizartion of *p*-values is attributed to R. A. Fisher's book *Statistical methods for research workers* [@fisherStatisticalMethodsResearch1925], who definitely did not suggest to use *p*-values the way they are used nowadays. 
+:::
+
+:::
+::: {.column width="20%"}
+
+::: {.fragment fragment-index=5}
+<figure>
+  <img src="Additional files/images/Fisher2.jpg" style="width:90%">
+  <figcaption style="font-size: 16px">R. A. Fisher (1890-1962), really good with the maths and stats, but also a pretty bad person</figcaption>
+</figure>
+:::
+
+:::
+::::
+
+## *P*-values to Test hypotheses
+
+
+*P*-values are generally used to "test hypotheses". Usually, this works by stating first a *null hypotheses* ($H_0$)  and an *alternative hypothesis* ($H_1$). For example:
+
+::: {.fragment fragment-index=1}
+> Let's once again say that we know depression in the US population is normally distributed with $\mu = 10$ and $\sigma = 3$. We take a random sample of $N = 25$ from the US population, and expose them to some new treatment for depression. After this treatment, we measure our sample's depression and we find an average of $\bar{X} = 9$ and a sample SD of $S = 3$.
+:::
+
+::: {.fragment fragment-index=2}
+**Question:** How do we know whether our treatment had *some effect* that is *probably* not due to chance alone? (the only question *p*-values can answer) 
+:::
+
+:::: {.columns}
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=3}
+
+<div style="font-size: 24px">  
+$H_0$: We know that *if the tratment has not effect at all*, the distribution of the means for depressionacross an infinite numebr of experiments would have $\mu = 10$ and $\sigma = \frac{3}{\sqrt{25}} = 0.6$. We always assume that $H_0$ is true when we test hypotheses. 
+</div>
+
+:::
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=4}
+
+<div style="font-size: 24px">  
+$H_1$: Assuming $H_0$ is true, and *the tratment has not effect at all*, what is the probability of observing a mean of $\bar{X} = 9$ or less? If this turns out to be really unlikely, then we gain strong evidence against $H_0$.
+</div>
+
+:::
+:::
+::::
+
+## Finding the *P*-value
+
+
+:::: {.columns}
+::: {.column width="70%"}
+
+<iframe width="1700px" height="600px" src="https://quinix45.github.io/shinylive_apps/P_val_norm/"> </iframe>
+
+:::
+::: {.column width="30%"}
+
+So, the probability of seeing $\bar{X} = 9$ or a more extrme value if $H_0$ is true is $p = .048$. 
+
+In other words, if we repeated the experiment an infinite number of times, only $4.8\%$ of the means would equal $9$ or less. 
+
+::: {.fragment fragment-index=1}
+Is this *enough* evidence that the treatment reduced depression to some extent? 🤔 I don't know, the answer is subjective (and don't trust anyone who would suggest otherwise). 
+:::
+
+:::
+::::
+
+## Back to Z-scores
+
+
+As the scale of things deos not matter in most cases, it is common to turn the sampling distribution into a distribution with $\mu = 0$ and $\sigma = 1$. Let's say that our sample SD, $S$, was $3$. Then, we can express our observed mean in Z-scores with the formula 
+
+
+
+::: {.fragment fragment-index=1}
+$$Z = \frac{\bar{X} - \mu_{H_0}}{SE} = \frac{9 - 10}{\frac{3}{\sqrt{25}}} = \frac{-1}{.6} = -1.67$$
+:::
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+
+::: {.fragment fragment-index=1}
+Where:
+
+<ul style="font-size: 22px">  
+
+<li>  $\bar{X}$: sample mean  </li>
+
+<li>  $\mu_{H_0}$: population mean </li>
+
+<li>  $SE$: The standard error, $\frac{S}{\sqrt{N}}$, where $S$ is the sample SD and $N$ is the sampel size. </li>
+
+</ul>
+
+So, assuming $H_0$ is true, our mean for depression was $1.67$ *standard errors* below the expected mean. 
+:::
+
+
+:::
+
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=3}
+
+```{r}
+ ggplot() +
+        xlim(c(-3,3))+
+        geom_function(fun = dnorm,
+                      color = "#1b305c") +
+        xlab("Sampling Distribution in Z-scores") +
+        geom_segment(aes(x = -1.67,
+                         xend = -1.67,
+                         y = 0,
+                         yend = dnorm(-1.67)),
+                         lty = 2) +
+        geom_ribbon(data = data.frame(x = seq(-1.67, -4, length.out = 1000)), 
+                    aes(x = x, ymin = 0, ymax = dnorm(x)), 
+                    fill = "#1b305c", alpha = 0.5) +
+        annotate("text", 
+                 x = Inf,
+                 y = Inf,
+                 label = paste("p =", round(pnorm((9 - 10)/(3/sqrt(25))), 3)), hjust=1,vjust = 1) +
+        annotate("text",
+                 x = 0,
+                 y = dnorm(0)/1.7,
+                 label = "You get the exact \n same p-value this way! \n Why do this then? \n Only for historical reasons. \n Back in the day, \n people had to work out p-values by hand; \n  so, they only did it for Z-scores, \n and then transformed values into Z-score, \n like we just did. \n \n Aside from that, the Z-score scale is also intuitive, \n so no reason to get rid of it") +
+        scale_y_continuous(expand = c(0,0)) + 
+        theme( axis.text.y=element_blank(),
+               axis.ticks.y=element_blank(),
+               axis.line.y = element_blank(),
+               axis.title.y = element_blank()) 
+```
+
+:::
+:::
+
+::::
+
+
+
+## Some "Problems" With *P*-values
+
+You may have been confused at many steps, and trust me, it's not your fault. *P*-values are confusing and there is no way around it (see [here](https://fivethirtyeight.com/features/not-even-scientists-can-easily-explain-p-values/){target="_blank"}); The definition of a *p*-value is:
+
+::: {.fragment fragment-index=1}
+> ***p*-value**: Assuming that $H_0$ is true, a *p*-value associated with any statistic is the probablity of observing that same statistic or a more extreme value, if we repeated the exact same experiment an infinite number of times.
+:::
+
+
+:::: {.columns}
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=2}
+<div style="font-size: 24px"> *same statistic or <u>a more extreme value</u>*: The definition of more extreme values is subjective and depends on the experiment. In the case of our example with depression, "more extreme" meant a lower mean depression than what we observed. </div>
+:::
+
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=3}
+<div style="font-size: 24px"> *if we repeated the exact same experiment an infinite number of times* (extremely unrealistic): Any *p*-value you calculate is based on a sampling distribution. The sampling distribution rapresents the distribution of a statistics over an infinite number of experiments; therefore, *p*-values share the same cavaet. </div> 
+:::
+
+:::
+::::
+
+</br>
+
+::: {.fragment fragment-index=4}
+Unfortunately, there exist no simpler definition of *p*-values ☹️ Attempting to simplify the definition given above, only causes misconceptions about what *p*-values are, as noted in @greenlandStatisticalTestsValues2016 (interesting article!).  
+:::
+
+## References
+
+<div id="refs"> </div>
+
+
+
+
