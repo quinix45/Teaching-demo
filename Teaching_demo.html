@@ -144,7 +144,6 @@
     }
   </style>
   <script src="Fabio_theme/Fabio_theme.js"></script>
-  <script src="shinylive-sw.js"></script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -165,7 +164,6 @@ Fabio Setti
 </div>
 
 </section>
-
 <section id="recap-scale-and-standardization" class="slide level2">
 <h2>Recap: Scale and Standardization</h2>
 <div class="columns">
@@ -312,10 +310,12 @@ for (let i = 0; i < n; i++) {
   document.getElementById("output").textContent = `Mean Depression of Sample: ${mean.toFixed(2)}`;
 }
 </script>
+<div class="fragment" data-fragment-index="3">
 <p>You should notice the the larger the sample size, the more consistently we get the population mean!</p>
 </div>
+</div>
 </div></div>
-<div class="fragment" data-fragment-index="3">
+<div class="fragment" data-fragment-index="4">
 <p><strong>Takeaway:</strong> Sample size greatly affects how close we expect the sample mean to be to the population mean</p>
 </div>
 </section>
@@ -340,7 +340,7 @@ SE_{\bar{X}} = \frac{S}{\sqrt{N}} = \frac{3.3}{\sqrt{100}} = .33
 <p><strong>statistics “reward” you for larger sample sizes</strong></p>
 </div>
 <div class="callout-content">
-<p>Note that as sample size, <span class="math inline">\(N\)</span>, becomes larger, <em>SE</em> becomes smaller, reflecting increased <em>precision</em> in the estimate of the population mean.</p>
+<p>Note that as sample size, <span class="math inline">\(N\)</span>, becomes larger, <em>SE</em> becomes smaller, reflecting increased <em>precision</em> in the estimate of the population statistic we want to measure.</p>
 </div>
 </div>
 </div>
@@ -373,18 +373,22 @@ SE_{\bar{X}} = \frac{S}{\sqrt{N}} = \frac{3.3}{\sqrt{100}} = .33
 <iframe width="1700px" height="600px" src="https://quinix45.github.io/shinylive_apps/Sampling_dist/">
 </iframe>
 </div><div class="column" style="width:20%;">
+<div class="fragment" data-fragment-index="1">
 <div style="font-size: 24px">
 As you increase the number of experiments, you will see that that the SD of the sampling distribution (plot on the right) will equal exactly
 </div>
 <p><span class="math display">\[SE = \frac{\sigma}{\sqrt{N}}\]</span></p>
+</div>
+<div class="fragment" data-fragment-index="2">
 <div style="font-size: 22px">
 <strong>Note:</strong> As on the previous slide, in practice we use <span class="math inline">\(S\)</span> and not <span class="math inline">\(\sigma\)</span>, which we do not need! As we have learned, the sample statistic <span class="math inline">\(S\)</span> will be very close to <span class="math inline">\(\sigma\)</span> if we sample correctly.
+</div>
 </div>
 </div></div>
 </section>
 <section id="p-values" class="slide level2">
 <h2><em>P</em>-values</h2>
-<p>Now we can put together two things that we know:</p>
+<p>Now we can put together two things that we have learned:</p>
 <ol style="font-size: 24px">
 <div class="fragment" data-fragment-index="1">
 <li>
@@ -410,7 +414,7 @@ Given a normal distribution, we know the probability of any value showing up (e.
 <p><strong>Historical note:</strong> The popularizartion of <em>p</em>-values is attributed to R. A. Fisher’s book <em>Statistical methods for research workers</em> <span class="citation" data-cites="fisherStatisticalMethodsResearch1925">(<a href="#/references" role="doc-biblioref" onclick="">Fisher, 1925</a>)</span>, who definitely did not suggest to use <em>p</em>-values the way they are used nowadays.</p>
 </div>
 </div><div class="column" style="width:20%;">
-<div class="fragment" data-fragment-index="5">
+<div class="fragment" data-fragment-index="4">
 <figure>
 <img src="Additional files/images/Fisher2.jpg" style="width:90%">
 <figcaption style="font-size: 16px">
@@ -422,7 +426,7 @@ R. A. Fisher (1890-1962), really good with the maths and stats, but also a prett
 </section>
 <section id="p-values-to-test-hypotheses" class="slide level2">
 <h2><em>P</em>-values to Test hypotheses</h2>
-<p><em>P</em>-values are generally used to “test hypotheses”. Usually, this works by stating first a <em>null hypotheses</em> (<span class="math inline">\(H_0\)</span>) and an <em>alternative hypothesis</em> (<span class="math inline">\(H_1\)</span>). For example:</p>
+<p><em>P</em>-values are generally used to “test hypotheses”. Usually, this works by stating first a <em>null hypothesis</em> (<span class="math inline">\(H_0\)</span>) and an <em>alternative hypothesis</em> (<span class="math inline">\(H_1\)</span>). For example:</p>
 <div class="fragment" data-fragment-index="1">
 <blockquote>
 <p>Let’s once again say that we know depression in the US population is normally distributed with <span class="math inline">\(\mu = 10\)</span> and <span class="math inline">\(\sigma = 3\)</span>. We take a random sample of <span class="math inline">\(N = 25\)</span> from the US population, and expose them to some new treatment for depression. After this treatment, we measure our sample’s depression and we find an average of <span class="math inline">\(\bar{X} = 9\)</span> and a sample SD of <span class="math inline">\(S = 3\)</span>.</p>
@@ -435,7 +439,7 @@ R. A. Fisher (1890-1962), really good with the maths and stats, but also a prett
 <div class="column" style="width:50%;">
 <div class="fragment" data-fragment-index="3">
 <div style="font-size: 24px">
-<p><span class="math inline">\(H_0\)</span>: We know that <em>if the tratment has not effect at all</em>, the distribution of the means for depressionacross an infinite numebr of experiments would have <span class="math inline">\(\mu = 10\)</span> and <span class="math inline">\(\sigma = \frac{3}{\sqrt{25}} = 0.6\)</span>. We always assume that <span class="math inline">\(H_0\)</span> is true when we test hypotheses.</p>
+<p><span class="math inline">\(H_0\)</span>: We know that <em>if the tratment has not effect at all</em>, the distribution of the means for depression across an infinite numebr of experiments would have <span class="math inline">\(\mu = 10\)</span> and <span class="math inline">\(\sigma = \frac{3}{\sqrt{25}} = 0.6\)</span>. We always assume that <span class="math inline">\(H_0\)</span> is true when we test hypotheses.</p>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
@@ -453,10 +457,15 @@ R. A. Fisher (1890-1962), really good with the maths and stats, but also a prett
 <iframe width="1700px" height="600px" src="https://quinix45.github.io/shinylive_apps/P_val_norm/">
 </iframe>
 </div><div class="column" style="width:30%;">
+<div class="fragment" data-fragment-index="1">
 <p>So, the probability of seeing <span class="math inline">\(\bar{X} = 9\)</span> or a more extrme value if <span class="math inline">\(H_0\)</span> is true is <span class="math inline">\(p = .048\)</span>.</p>
 <p>In other words, if we repeated the experiment an infinite number of times, only <span class="math inline">\(4.8\%\)</span> of the means would equal <span class="math inline">\(9\)</span> or less.</p>
-<div class="fragment" data-fragment-index="1">
-<p>Is this <em>enough</em> evidence that the treatment reduced depression to some extent? 🤔 I don’t know, the answer is subjective (and don’t trust anyone who would suggest otherwise).</p>
+</div>
+<div class="fragment" data-fragment-index="2">
+<p>Is this <em>enough</em> evidence that the treatment reduced depression to some extent? 🤔</p>
+</div>
+<div class="fragment" data-fragment-index="3">
+<p>I don’t know, the answer is subjective (and don’t trust anyone who would suggest otherwise).</p>
 </div>
 </div></div>
 </section>
@@ -515,7 +524,7 @@ R. A. Fisher (1890-1962), really good with the maths and stats, but also a prett
 </div><div class="column" style="width:50%;">
 <div class="fragment" data-fragment-index="3">
 <div style="font-size: 24px">
-<em>if we repeated the exact same experiment an infinite number of times</em> (extremely unrealistic): Any <em>p</em>-value you calculate is based on a sampling distribution. The sampling distribution rapresents the distribution of a statistics over an infinite number of experiments; therefore, <em>p</em>-values share the same cavaet.
+<em>if we repeated the exact same experiment an infinite number of times</em> (extremely unrealistic): Any <em>p</em>-value you calculate is based on a sampling distribution. The sampling distribution rapresents the distribution of a sample statistic over an infinite number of experiments; therefore, <em>p</em>-values share the same cavaet.
 </div>
 </div>
 </div></div>

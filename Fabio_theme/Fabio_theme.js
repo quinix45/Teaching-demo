@@ -407,6 +407,13 @@ function disableAllFragments(fragments, showPopupMessage = true) {
 
 
 
+setTimeout(function() {
+  if (document.querySelector('.reveal-print')) {
+    document.querySelectorAll('.footer, .decoration').forEach(function(el) {
+      el.style.visibility = 'hidden';
+    });
+  }
+}, 500); // half a second
 
 
 // crearte hiden search box on document load

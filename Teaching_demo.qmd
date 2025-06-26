@@ -3,8 +3,6 @@ title: "Introduction to *p*-values"
 author: "Fabio Setti"
 institute: "PSYC 2000 - Statistics"
 
-engine: shinylive
-
 bibliography: Additional files/references.bib
 csl: Additional files/apa.csl
 
@@ -24,19 +22,13 @@ format:
     controls: false
     embed-resources: false
     auto-stretch: false
-    resource-path: 
-      - shinylive-sw.js
     header-includes:
       - <script src="Fabio_theme/Fabio_theme.js"></script>
-      - <script src="shinylive-sw.js"></script>
 
-filters:
-  - shinylive
 editor: source
 ---
 
-
-## Recap: Central tendency, dispersion, Skewness{visibility="hidden"}
+## Recap: Scale and Standardization
 
 
 ```{r}
@@ -44,32 +36,6 @@ library(tidyverse)
 theme_set(theme_classic(base_size = 16, 
                         base_family = 'serif'))
 ```
-
-
-:::: {.columns}
-::: {.column width="75%"}
-
-<iframe width="90%" height="600px" src="https://fabiosetti.shinyapps.io/Skew_Normal_distribution/"> </iframe>
-
-:::
-::: {.column width="25%"}
-
-**Central tendency**: Measures used to describe the center of a distribution (<u>mean</u>, median, mode)
-
-**Dispersion**: Measures used to describe variability of a distribution (<u>standard deviation</u>, variance, range)
-
-<center>
-
-Different measures of central tendency may be more or less appropriate depending on **skweness**
-
-</center>
-
-
-:::
-::::
-
-
-## Recap: Scale and Standardization
 
 :::: {.columns}
 ::: {.column width="70%"}
@@ -461,7 +427,9 @@ for (let i = 0; i < n; i++) {
 }
 </script>
 
+::: {.fragment fragment-index=3}
 You should notice the the larger the sample size, the more consistently we get the population mean!
+:::
 
 :::
 
@@ -469,7 +437,7 @@ You should notice the the larger the sample size, the more consistently we get t
 
 ::::
 
-::: {.fragment fragment-index=3}
+::: {.fragment fragment-index=4}
 **Takeaway:** Sample size greatly affects how close we expect the sample mean to be to the population mean
 :::
 
@@ -496,7 +464,7 @@ $$
 :::{.callout-note}
 ## statistics "reward" you for larger sample sizes
 
-Note that as sample size, $N$, becomes larger, *SE* becomes smaller, reflecting increased *precision* in the estimate of the population mean.
+Note that as sample size, $N$, becomes larger, *SE* becomes smaller, reflecting increased *precision* in the estimate of the population statistic we want to measure.
 :::
 :::
 
@@ -544,13 +512,20 @@ If this makes no sense, don't worry, you are not alone! Let's look at the intera
 :::
 ::: {.column width="20%"}
 
+
+::: {.fragment fragment-index=1}
 <div style="font-size: 24px"> As you increase the number of experiments, you will see that that the SD of the sampling distribution (plot on the right) will equal exactly </div>
 
 
 
 $$SE = \frac{\sigma}{\sqrt{N}}$$
+:::
 
+
+
+::: {.fragment fragment-index=2}
 <div style="font-size: 22px"> **Note:** As on the previous slide, in practice we use $S$ and not $\sigma$, which we do not need! As we have learned, the sample statistic $S$ will be very close to $\sigma$ if we sample correctly. </div>
+:::
 
 :::
 ::::
@@ -559,7 +534,7 @@ $$SE = \frac{\sigma}{\sqrt{N}}$$
 
 ## *P*-values
 
-Now we can put together two things that we know:
+Now we can put together two things that we have learned:
 
 <ol style="font-size: 24px">  
 
@@ -597,7 +572,7 @@ We can now check the probability of seeing our specific sample statistic, *or so
 :::
 ::: {.column width="20%"}
 
-::: {.fragment fragment-index=5}
+::: {.fragment fragment-index=4}
 <figure>
   <img src="Additional files/images/Fisher2.jpg" style="width:90%">
   <figcaption style="font-size: 16px">R. A. Fisher (1890-1962), really good with the maths and stats, but also a pretty bad person</figcaption>
@@ -610,7 +585,7 @@ We can now check the probability of seeing our specific sample statistic, *or so
 ## *P*-values to Test hypotheses
 
 
-*P*-values are generally used to "test hypotheses". Usually, this works by stating first a *null hypotheses* ($H_0$)  and an *alternative hypothesis* ($H_1$). For example:
+*P*-values are generally used to "test hypotheses". Usually, this works by stating first a *null hypothesis* ($H_0$)  and an *alternative hypothesis* ($H_1$). For example:
 
 ::: {.fragment fragment-index=1}
 > Let's once again say that we know depression in the US population is normally distributed with $\mu = 10$ and $\sigma = 3$. We take a random sample of $N = 25$ from the US population, and expose them to some new treatment for depression. After this treatment, we measure our sample's depression and we find an average of $\bar{X} = 9$ and a sample SD of $S = 3$.
@@ -626,7 +601,7 @@ We can now check the probability of seeing our specific sample statistic, *or so
 ::: {.fragment fragment-index=3}
 
 <div style="font-size: 24px">  
-$H_0$: We know that *if the tratment has not effect at all*, the distribution of the means for depressionacross an infinite numebr of experiments would have $\mu = 10$ and $\sigma = \frac{3}{\sqrt{25}} = 0.6$. We always assume that $H_0$ is true when we test hypotheses. 
+$H_0$: We know that *if the tratment has not effect at all*, the distribution of the means for depression across an infinite numebr of experiments would have $\mu = 10$ and $\sigma = \frac{3}{\sqrt{25}} = 0.6$. We always assume that $H_0$ is true when we test hypotheses. 
 </div>
 
 :::
@@ -655,12 +630,19 @@ $H_1$: Assuming $H_0$ is true, and *the tratment has not effect at all*, what is
 :::
 ::: {.column width="30%"}
 
+
+::: {.fragment fragment-index=1}
 So, the probability of seeing $\bar{X} = 9$ or a more extrme value if $H_0$ is true is $p = .048$. 
 
 In other words, if we repeated the experiment an infinite number of times, only $4.8\%$ of the means would equal $9$ or less. 
+:::
 
-::: {.fragment fragment-index=1}
-Is this *enough* evidence that the treatment reduced depression to some extent? 🤔 I don't know, the answer is subjective (and don't trust anyone who would suggest otherwise). 
+::: {.fragment fragment-index=2}
+Is this *enough* evidence that the treatment reduced depression to some extent? 🤔
+:::
+
+::: {.fragment fragment-index=3}
+I don't know, the answer is subjective (and don't trust anyone who would suggest otherwise). 
 :::
 
 :::
@@ -736,10 +718,7 @@ So, assuming $H_0$ is true, our mean for depression was $1.67$ *standard errors*
 
 :::
 :::
-
 ::::
-
-
 
 ## Some "Problems" With *P*-values
 
@@ -762,7 +741,7 @@ You may have been confused at many steps, and trust me, it's not your fault. *P*
 ::: {.column width="50%"}
 
 ::: {.fragment fragment-index=3}
-<div style="font-size: 24px"> *if we repeated the exact same experiment an infinite number of times* (extremely unrealistic): Any *p*-value you calculate is based on a sampling distribution. The sampling distribution rapresents the distribution of a statistics over an infinite number of experiments; therefore, *p*-values share the same cavaet. </div> 
+<div style="font-size: 24px"> *if we repeated the exact same experiment an infinite number of times* (extremely unrealistic): Any *p*-value you calculate is based on a sampling distribution. The sampling distribution rapresents the distribution of a sample statistic over an infinite number of experiments; therefore, *p*-values share the same cavaet. </div> 
 :::
 
 :::
